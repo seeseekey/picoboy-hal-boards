@@ -1,35 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "boards/adafruit-feather-rp2040",
-    "boards/adafruit-itsy-bitsy-rp2040",
-    "boards/adafruit-kb2040",
-    "boards/adafruit-macropad",
-    "boards/adafruit-metro-rp2040",
-    "boards/adafruit-qt-py-rp2040",
-    "boards/adafruit-trinkey-qt2040",
-    "boards/arduino_nano_connect",
-    "boards/boardsource-blok",
-    "boards/framework-ledmatrix",
-    "boards/framework16-keyboard",
-    "boards/picoboy-color",
-    "boards/pimoroni_badger2040",
-    "boards/pimoroni-pico-explorer",
-    "boards/pimoroni-pico-lipo-16mb",
-    "boards/pimoroni-plasma-2040",
-    "boards/pimoroni-servo2040",
-    "boards/pimoroni-tiny2040",
-    "boards/pimoroni-tufty2040",
-    "boards/rp-pico",
-    "boards/seeeduino-xiao-rp2040",
-    "boards/solderparty-rp2040-stamp",
-    "boards/sparkfun-micromod-rp2040",
-    "boards/sparkfun-pro-micro-rp2040",
-    "boards/sparkfun-thing-plus-rp2040",
-    "boards/vcc-gnd-yd-rp2040",
-    "boards/waveshare-rp2040-zero",
-    "boards/waveshare-rp2040-lcd-0-96",
-	"boards/waveshare-rp2040-lcd-1-28",
+    "boards/picoboy",
+    "boards/picoboy-color"
 ]
 
 [workspace.dependencies]

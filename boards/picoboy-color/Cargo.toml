@@ -3,10 +3,10 @@ name = "picoboy-color"
 version = "0.1.0"
 authors = ["seeseekey <info@seeseekey.net>", "The rp-rs Developers"]
 edition = "2018"
-homepage = "https://github.com/rp-rs/rp-hal-boards/tree/main/boards/picoboy-color"
+homepage = "https://github.com/seeseekey/picoboy-hal-boards/tree/main/boards/picoboy-color"
 description = "Board Support Package for the Picoboy Color"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/rp-rs/rp-hal-boards.git"
+repository = "https://github.com/seeseekey/picoboy-hal-boards.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

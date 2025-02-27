@@ -724,7 +724,7 @@ hal::bsp_pins!(
         name: vbus_detect,
     },
 
-    /// GPIO 25 is connected to led of the Picoboy Color.
+    /// GPIO 25
     Gpio25 {
         name: gpio25,
     },
