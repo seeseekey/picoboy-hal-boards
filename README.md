@@ -5,7 +5,7 @@
     <img src="https://www.svgrepo.com/show/281119/microchip.svg" alt="Logo" width="140" height="140">
   </a>
 
-   <h3 align="center">rp-hal-boards</h3>
+   <h3 align="center">Picoboard hal boards</h3>
 
   <p align="center">
     Rust support for boards based on the "Raspberry Silicon" family of microcontrollers
