@@ -1,7 +1,7 @@
 # [Picoboy Color] - Board Support for the [Picoboy Color]
 
 You should include this crate if you are writing code that you want to run on
-an [Picoboy Color] - Play, learn, program! In color!.
+a [Picoboy Color] - Play, learn, program! In color!.
 
 This crate includes the [rp2040-hal], but also configures each pin of the
 RP2040 chip according to how it is connected up on the Feather.
@@ -15,7 +15,7 @@ RP2040 chip according to how it is connected up on the Feather.
 To use this crate, your `Cargo.toml` file should contain:
 
 ```toml
-picoboy-color = "0.1.0"
+picoboy-color = "0.1.1"
 ```
 
 In your program, you will need to call `picoboy-color::Pins::new` to create
@@ -26,10 +26,10 @@ devices. See the [examples](./examples) folder for more details.
 
 ### General Instructions
 
-To compile an example, clone the _rp-hal-boards_ repository and run:
+To compile an example, clone the _picoboy-hal-boards_ repository and run:
 
 ```console
-rp-hal-boards/boards/picoboy-color $ cargo build --release --example <name>
+picoboy-hal-boards/boards/picoboy-color $ cargo build --release --example <name>
 ```
 
 You will get an ELF file called
@@ -43,7 +43,7 @@ USB drive exported by the RP2040 bootloader, simply boot your board into
 bootloader mode and run:
 
 ```console
-rp-hal-boards/boards/picoboy-color $ cargo run --release --example <name>
+picoboy-hal-boards/boards/picoboy-color $ cargo run --release --example <name>
 ```
 
 If you get an error about not being able to find `elf2uf2-rs`, try:
@@ -65,18 +65,17 @@ The steps are:
 3. Make some changes to the code or documentation.
 4. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 5. Push to the Feature Branch (`git push origin feature/AmazingFeature`)
-6. Create a [New Pull Request](https://github.com/rp-rs/rp-hal-boards/pulls)
+6. Create a [New Pull Request](https://github.com/seeseekey/picoboy-hal-boards/pulls)
 7. An admin will review the Pull Request and discuss any changes that may be required.
 8. Once everyone is happy, the Pull Request can be merged by an admin, and your work is part of our project!
 
 ## Code of Conduct
 
 Contribution to this crate is organized under the terms of the [Rust Code of
-Conduct][CoC], and the maintainer of this crate, the [rp-rs team], promises
+Conduct][CoC], and the maintainer of this crate, the author, promises
 to intervene to uphold that code of conduct.
 
 [CoC]: CODE_OF_CONDUCT.md
-[rp-rs team]: https://github.com/orgs/rp-rs/teams/rp-rs
 
 ## License
 
