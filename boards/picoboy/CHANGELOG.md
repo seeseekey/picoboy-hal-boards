@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.1.1 - 2025-02-28
 
+### Added
+
+* Add example for Picoboy display (picoboy_display)
+
 ### Changed
 
 * Update documentation and toml

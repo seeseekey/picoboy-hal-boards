@@ -1,6 +1,6 @@
-//! # Picoboy Color Display Example
+//! # Picoboy Display Example
 //!
-//! Blinks the LED on a Picoboy Color.
+//! Blinks the LED on a Picoboy.
 //!
 //! This will draws a circle on the display.
 //!
@@ -10,7 +10,7 @@
 #![no_main]
 
 // The macro for our start-up function
-use picoboy_color::entry;
+use picoboy::entry;
 
 // GPIO traits
 use embedded_hal::digital::OutputPin;
@@ -20,25 +20,25 @@ use embedded_hal::digital::OutputPin;
 use panic_halt as _;
 
 // Pull in any important traits
-use picoboy_color::hal::prelude::*;
+use picoboy::hal::prelude::*;
 
 // A shorter alias for the Peripheral Access Crate, which provides low-level
 // register access
-use picoboy_color::hal::pac;
+use picoboy::hal::pac;
 
 // A shorter alias for the Hardware Abstraction Layer, which provides
 // higher-level drivers.
-use picoboy_color::hal;
+use picoboy::hal;
 
-use display_interface_spi::SPIInterface;
-use embedded_graphics::{
-    pixelcolor::Rgb565,
-    prelude::*,
-    primitives::{Circle, PrimitiveStyle},
-};
+use embedded_graphics::mono_font::ascii::FONT_6X10;
+use embedded_graphics::mono_font::MonoTextStyleBuilder;
+use embedded_graphics::pixelcolor::BinaryColor;
+use embedded_graphics::text::{Baseline, Text};
+use embedded_graphics::prelude::*;
 use fugit::RateExtU32;
 use rp2040_hal::Spi;
-use st7789::{Orientation, ST7789};
+use sh1106::prelude::GraphicsMode;
+use sh1106::Builder;
 
 /// Entry point to our bare-metal application.
 ///
@@ -60,7 +60,7 @@ fn main() -> ! {
     //
     // The default is to generate a 125 MHz system clock
     let clocks = hal::clocks::init_clocks_and_plls(
-        picoboy_color::XOSC_CRYSTAL_FREQ,
+        picoboy::XOSC_CRYSTAL_FREQ,
         pac.XOSC,
         pac.CLOCKS,
         pac.PLL_SYS,
@@ -76,7 +76,7 @@ fn main() -> ! {
 
     // The single-cycle I/O block controls our GPIO pins
     let sio = hal::Sio::new(pac.SIO);
-    let pins = picoboy_color::Pins::new(
+    let pins = picoboy::Pins::new(
         pac.IO_BANK0,
         pac.PADS_BANK0,
         sio.gpio_bank0,
@@ -84,17 +84,13 @@ fn main() -> ! {
     );
 
     // Define display width and height
-    const DISPLAY_WIDTH: i32 = 240;
-    const DISPLAY_HEIGHT: i32 = 280;
-
-    // Switch on backlight
-    let mut backlight = pins.backlight.into_push_pull_output();
-    backlight.set_high().unwrap();
+    const DISPLAY_WIDTH: i32 = 128;
+    const DISPLAY_HEIGHT: i32 = 64;
 
     // Configure SPI pins
     let spi_sclk = pins.sck.into_function::<rp2040_hal::gpio::FunctionSpi>(); // SCK
     let spi_mosi = pins.mosi.into_function::<rp2040_hal::gpio::FunctionSpi>(); // MOSI
-    let spi_miso = pins.gpio16.into_function::<rp2040_hal::gpio::FunctionSpi>(); // MISO (not needed)
+    let spi_miso = pins.joystick_left.into_function::<rp2040_hal::gpio::FunctionSpi>(); // MISO (not needed)
 
     // Create spi instance
     let spi = Spi::<_, _, _, 8>::new(pac.SPI0, (spi_mosi, spi_miso, spi_sclk));
@@ -103,42 +99,41 @@ fn main() -> ! {
     let spi = spi.init(
         &mut pac.RESETS,
         clocks.peripheral_clock.freq(),
-        125000000u32.Hz(),
-        embedded_hal::spi::MODE_3, // ST7789 requires SPI mode 3
+        8_000_000u32.Hz(), // 8 MHz
+        embedded_hal::spi::MODE_0, // MODE_0 for SH1106
     );
 
     // Configure display pins
     let dc = pins.dc.into_push_pull_output(); // Data/command pin
-    let rst = pins.reset.into_push_pull_output(); // Reset pin
+    let mut rst = pins.reset.into_push_pull_output(); // Reset pin
     let cs = pins.cs.into_push_pull_output(); // Chip select
 
+    // Reset display
+    rst.set_low().unwrap();
+    delay.delay_ms(10);
+    rst.set_high().unwrap();
+    delay.delay_ms(10);
+
     // Create display interface
-    let di = SPIInterface::new(spi, dc, cs);
+    let mut display: GraphicsMode<_> = Builder::new().connect_spi(spi, dc, cs).into();
 
-    // Create and init display
-    let mut display = ST7789::new(di, rst, DISPLAY_WIDTH as u16, DISPLAY_HEIGHT as u16);
+    display.init().unwrap();
+    display.flush().unwrap();
 
-    display.init(&mut delay).unwrap();
-    display
-        .set_orientation(Orientation::PortraitSwapped)
+    let text_style = MonoTextStyleBuilder::new()
+        .font(&FONT_6X10)
+        .text_color(BinaryColor::On)
+        .build();
+
+    Text::with_baseline("Hello world!", Point::zero(), text_style, Baseline::Top)
+        .draw(&mut display)
         .unwrap();
 
-    // Clear display
-    display.clear(Rgb565::RED).unwrap();
+    Text::with_baseline("From Rust with love.", Point::new(0, 16), text_style, Baseline::Top)
+        .draw(&mut display)
+        .unwrap();
 
-    // Draw white circle
-    const DIAMETER: i32 = 100;
-
-    let circle = Circle::new(
-        Point::new(
-            DISPLAY_WIDTH / 2 - (DIAMETER / 2),
-            DISPLAY_HEIGHT / 2 - (DIAMETER / 2),
-        ),
-        DIAMETER as u32,
-    )
-    .into_styled(PrimitiveStyle::with_stroke(Rgb565::WHITE, 5));
-
-    circle.draw(&mut display).unwrap();
+    display.flush().unwrap();
 
     // Red led running indicator
     let mut led_pin = pins.led_red.into_push_pull_output();
