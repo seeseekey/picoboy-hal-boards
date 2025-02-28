@@ -1,15 +1,16 @@
-//! # Picoboy Color Blinky Example
+//! # Picoboy Multiblink Example
 //!
-//! Blinks the LED on a Picoboy Color.
+//! Blinks the red, yellow and green LED on a Picoboy.
 //!
-//! This will blink an LED attached to GP5, which is the pin the Picoboy Color uses for
-//! the red on-board LED.
+//! This will blink an LED attached to GP5, GP6, GP7 which is the pin the Picoboy uses for
+//! the on-board LED.
 //!
 //! See the `Cargo.toml` file for Copyright and license details.
 
 #![no_std]
 #![no_main]
 
+use cortex_m::delay::Delay;
 // The macro for our start-up function
 use picoboy::entry;
 
@@ -36,7 +37,7 @@ use picoboy::hal;
 /// The `#[entry]` macro ensures the Cortex-M start-up code calls this function
 /// as soon as all global variables are initialised.
 ///
-/// The function configures the RP2040 peripherals, then blinks the LED in an
+/// The function configures the RP2040 peripherals, then blinks the LEDs in an
 /// infinite loop.
 #[entry]
 fn main() -> ! {
@@ -60,8 +61,8 @@ fn main() -> ! {
         &mut pac.RESETS,
         &mut watchdog,
     )
-    .ok()
-    .unwrap();
+        .ok()
+        .unwrap();
 
     // The delay object lets us wait for specified amounts of time (in milliseconds)
     let mut delay = cortex_m::delay::Delay::new(core.SYST, clocks.system_clock.freq().to_Hz());
@@ -78,15 +79,23 @@ fn main() -> ! {
     );
 
     // Set the LED to be an output
-    let mut led_pin = pins.led_red.into_push_pull_output();
+    let mut led_pin_red = pins.led_red.into_push_pull_output();
+    let mut led_pin_yellow = pins.led_yellow.into_push_pull_output();
+    let mut led_pin_green = pins.led_green.into_push_pull_output();
 
     // Blink the LED at 1 Hz
     loop {
-        led_pin.set_high().unwrap();
-        delay.delay_ms(500);
-        led_pin.set_low().unwrap();
-        delay.delay_ms(500);
+        blink_led(&mut delay, &mut led_pin_red);
+        blink_led(&mut delay, &mut led_pin_yellow);
+        blink_led(&mut delay, &mut led_pin_green);
     }
+}
+
+fn blink_led(delay: &mut Delay, led_pin: &mut impl OutputPin<Error = core::convert::Infallible>) {
+    led_pin.set_high().unwrap();
+    delay.delay_ms(500);
+    led_pin.set_low().unwrap();
+    delay.delay_ms(500);
 }
 
 // End of file
