@@ -69,14 +69,6 @@ The steps are:
 7. An admin will review the Pull Request and discuss any changes that may be required.
 8. Once everyone is happy, the Pull Request can be merged by an admin, and your work is part of our project!
 
-## Code of Conduct
-
-Contribution to this crate is organized under the terms of the [Rust Code of
-Conduct][CoC], and the maintainer of this crate, the author, promises
-to intervene to uphold that code of conduct.
-
-[CoC]: CODE_OF_CONDUCT.md
-
 ## License
 
 The contents of this repository are dual-licensed under the _MIT OR Apache
