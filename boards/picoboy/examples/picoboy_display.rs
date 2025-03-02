@@ -90,7 +90,7 @@ fn main() -> ! {
     // Configure SPI pins
     let spi_sclk = pins.sck.into_function::<rp2040_hal::gpio::FunctionSpi>(); // SCK
     let spi_mosi = pins.mosi.into_function::<rp2040_hal::gpio::FunctionSpi>(); // MOSI
-    let spi_miso = pins.joystick_left.into_function::<rp2040_hal::gpio::FunctionSpi>(); // MISO (not needed)
+    let spi_miso = pins.gpio16.into_function::<rp2040_hal::gpio::FunctionSpi>(); // MISO (not needed)
 
     // Create spi instance
     let spi = Spi::<_, _, _, 8>::new(pac.SPI0, (spi_mosi, spi_miso, spi_sclk));
