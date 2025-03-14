@@ -9,6 +9,11 @@
 #![no_std]
 #![no_main]
 
+use embedded_hal_bus::spi::ExclusiveDevice;
+use mipidsi::interface::SpiInterface;
+use mipidsi::models::ST7789;
+use mipidsi::options::Orientation;
+use mipidsi::Builder;
 // The macro for our start-up function
 use picoboy_color::entry;
 
@@ -30,7 +35,6 @@ use picoboy_color::hal::pac;
 // higher-level drivers.
 use picoboy_color::hal;
 
-use display_interface_spi::SPIInterface;
 use embedded_graphics::{
     pixelcolor::Rgb565,
     prelude::*,
@@ -38,7 +42,7 @@ use embedded_graphics::{
 };
 use fugit::RateExtU32;
 use rp2040_hal::Spi;
-use st7789::{Orientation, ST7789};
+use rp2040_hal::Timer;
 
 /// Entry point to our bare-metal application.
 ///
@@ -72,6 +76,8 @@ fn main() -> ! {
 
     // The delay object lets us wait for specified amounts of time (in milliseconds)
     let mut delay = cortex_m::delay::Delay::new(core.SYST, clocks.system_clock.freq().to_Hz());
+
+    let mut timer = Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
 
     // The single-cycle I/O block controls our GPIO pins
     let sio = hal::Sio::new(pac.SIO);
@@ -111,15 +117,24 @@ fn main() -> ! {
     let rst = pins.reset.into_push_pull_output();
     let cs = pins.cs.into_push_pull_output();
 
-    // Create display interface
-    let di = SPIInterface::new(spi, dc, cs);
-
     // Create and init display
-    let mut display = ST7789::new(di, rst, DISPLAY_WIDTH as u16, DISPLAY_HEIGHT as u16);
+    let spi_device = ExclusiveDevice::new_no_delay(spi, cs).unwrap();
 
-    display.init(&mut delay).unwrap();
+    let mut buffer = [0_u8; 512];
+
+    // Create display interface
+    let di = SpiInterface::new(spi_device, dc, &mut buffer);
+
+    let mut display = Builder::new(ST7789, di)
+        .display_size(DISPLAY_WIDTH as u16, DISPLAY_HEIGHT as u16)
+        .invert_colors(mipidsi::options::ColorInversion::Inverted)
+        .reset_pin(rst)
+        .display_offset(0, 20)
+        .init(&mut timer)
+        .unwrap();
+
     display
-        .set_orientation(Orientation::PortraitSwapped)
+        .set_orientation(Orientation::new().rotate(mipidsi::options::Rotation::Deg180))
         .unwrap();
 
     // Configuring joystick buttons
@@ -138,7 +153,6 @@ fn main() -> ! {
     display.clear(Rgb565::BLACK).unwrap();
 
     loop {
-
         // Check entries and adjust position
         if joystick_down.is_low().unwrap() {
             y = y.saturating_add(2);
@@ -157,7 +171,6 @@ fn main() -> ! {
         }
 
         if x != old_x || y != old_y {
-
             // Only paint over the old circle with black instead of erasing the entire screen
             let old_circle = Circle::new(Point::new(old_x, old_y), 25).into_styled(
                 PrimitiveStyleBuilder::new()
